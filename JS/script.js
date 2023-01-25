@@ -21,16 +21,62 @@ class Obj{
         this.h *= scale
     }
 }
+class Trampoline extends Obj{
+    constructor(x,y,w,h,type,power){
+        super(x,y,w,h,type)
+        this.power = power
+        this.animationTimer = 0
+    }
+    animate(){
+        this.animationTimer += 1
+        const animationFrame = 1+Math.floor(this.animationTimer/30)
+        if(animationFrame == 1){
+            this.type = 'tp2'
+            setTimeout(() => {this.animate()})
+            if(this.animationTimer == 1){
+                this.y-=this.h*0.3
+                this.h*=1.3
+            }
+        }
+        else{
+            this.animationTimer = 0
+            this.type = 'tp1'
+            this.h *= (1/1.3)
+            this.y+=this.h*0.3
+        }
+    }
+    update(scale){
+        super.update(scale)
+        this.power *= scale
+    }
+}
+class Portal extends Obj{
+    constructor(x,y,w,h,type,link){
+        super(x,y,w,h,type)
+        this.linkX = link.x
+        this.linkY = link.y
+    }
+    teleport(player){
+        player.x = this.linkX
+        player.y = this.linkY
+    }
+    update(scale){
+        super.update(scale)
+        this.linkX *= scale
+        this.linkY *= scale
+    }
+}
 const objects = [new Obj(300,canvas.height-80,20,20,'GrassAndDirt'),new Obj(300,canvas.height-100,20,20,'Grass'),new Obj(300,canvas.height-120,20,20,'Dirt'),new Obj(300,canvas.height-140,20,20,'GrassAndDirt'),new Obj(300,canvas.height-160,20,20,'GrassAndDirt'),
 new Obj(320,canvas.height-80,20,20,'GrassAndDirt'),new Obj(340,canvas.height-80,20,20,'GrassAndDirt'),new Obj(360,canvas.height-80,20,20,'GrassAndDirt'),
-new Obj(320,canvas.height-160,20,20,'GrassAndDirt'),new Obj(340,canvas.height-160,20,20,'Grass'),new Obj(280,canvas.height-160,20,20,'GrassAndDirt'),
+new Obj(320,canvas.height-160,20,20,'Lava'),new Obj(340,canvas.height-160,20,20,'Grass'),new Obj(280,canvas.height-160,20,20,'GrassAndDirt'),
 new Obj(280,canvas.height-240,20,20,'Grass'),new Obj(340,canvas.height-300,20,20,'GrassAndDirt'),
-new Obj(280,canvas.height-400,20,20,'GrassAndDirt'),new Obj(340,canvas.height-500,20,20,'Dirt'),new Obj(280,canvas.height-600,20,20,'GrassAndDirt'),new Obj(340,canvas.height-700,20,20,'Dirt')]
+new Obj(280,canvas.height-400,20,20,'GrassAndDirt'),new Obj(340,canvas.height-500,20,20,'Dirt'),new Obj(280,canvas.height-600,20,20,'GrassAndDirt'),new Obj(340,canvas.height-700,20,20,'Dirt'),
+new Trampoline(540,canvas.height-100,40,40,'tp1',20), new Portal(640,750,30,45,'portal1',{x:100,y:780}),new Portal(60,750,30,45,'portal1',{x:610,y:780})]
 class Player{
     constructor(){
         this.size = 20
-        this.x = canvas.width/2-10
-        this.y = canvas.height-20
+        this.x = 690
+        this.y = 780
         this.speed = 5
         this.isJumping = false
         this.gravity = 1
@@ -92,7 +138,7 @@ class Player{
         for(let i=0; i<objects.length; i++){
             const {x:x, y:y, w:w, h:h, type:type} = objects[i]
             if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)<y+h && this.y+this.size+Math.abs(this.jumpSpeed)>y){
-                if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt'){
+                if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt' || type == 'tp1'){
                     const x_dist = ((this.x+this.size/2)-(x+w/2))/(w/(w+h))
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
                     if(Math.abs(x_dist)>=Math.abs(y_dist)){
@@ -105,7 +151,11 @@ class Player{
                     }
                 }
                 else if(type == 'Lava'){
-                    //player dies
+                    player  = new Player()
+                    player.update(canvas.width/1400)
+                }
+                else if(type == 'portal1'){
+                    objects[i].teleport(this)
                 }
             }
         }
@@ -134,7 +184,26 @@ class Player{
                     }
                 }
                 else if(type == 'Lava'){
-                    //player dies
+                    player  = new Player()
+                    player.update(canvas.width/1400)
+                }
+                else if(type == 'tp1'){
+                    const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
+                    if(y_dist<0){
+                        this.y = y-this.size-h*0.3
+                        this.isJumping = false
+                        this.jumpSpeed = objects[i].power
+                        if(objects[i].animationTimer == 0){
+                            objects[i].animate()
+                        }
+                    }
+                    else{
+                        this.y = y+h
+                        this.jumpSpeed = 0
+                    }
+                }
+                else if(type == 'portal1'){
+                    objects[i].teleport(this)
                 }
             }
         }
@@ -148,7 +217,7 @@ class Player{
         this.startJumpSpeed *= scale
     }
 }
-const player = new Player()
+let player = new Player()
 
 function mainLoop(){
     ctx.fillStyle = '#ffffff'
