@@ -20,7 +20,9 @@ const images = {
     stone: image('Stone'),
     grassyStone: image('Stoney_Grass'),
     Tree: image('Tree'),
-    Tree2: image('Tree2')
+    Tree2: image('Tree2'),
+    plus: image('plus'),
+    minus: image('minus')
 }
 export function grabImage(name){
     return images[name]
