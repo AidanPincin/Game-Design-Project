@@ -66,12 +66,19 @@ class Portal extends Obj{
         this.linkY *= scale
     }
 }
-const objects = [new Obj(300,canvas.height-80,20,20,'GrassAndDirt'),new Obj(300,canvas.height-100,20,20,'Grass'),new Obj(300,canvas.height-120,20,20,'Dirt'),new Obj(300,canvas.height-140,20,20,'GrassAndDirt'),new Obj(300,canvas.height-160,20,20,'GrassAndDirt'),
-new Obj(320,canvas.height-80,20,20,'GrassAndDirt'),new Obj(340,canvas.height-80,20,20,'GrassAndDirt'),new Obj(360,canvas.height-80,20,20,'GrassAndDirt'),
-new Obj(320,canvas.height-160,20,20,'Lava'),new Obj(340,canvas.height-160,20,20,'Grass'),new Obj(280,canvas.height-160,20,20,'GrassAndDirt'),
-new Obj(280,canvas.height-240,20,20,'Grass'),new Obj(340,canvas.height-300,20,20,'GrassAndDirt'),
-new Obj(280,canvas.height-400,20,20,'GrassAndDirt'),new Obj(340,canvas.height-500,20,20,'Dirt'),new Obj(280,canvas.height-600,20,20,'GrassAndDirt'),new Obj(340,canvas.height-700,20,20,'Dirt'),
-new Trampoline(540,canvas.height-100,40,40,'tp1',20), new Portal(640,750,30,45,'portal1',{x:100,y:780}),new Portal(60,750,30,45,'portal1',{x:610,y:780})]
+const TrampolinePowers = {
+    20:10,
+    19:9,
+    18.5:8,
+    17:7,
+    16:6,
+    15:5,
+    13:4,
+    11:3,
+    10:2,
+    7:1
+}
+const objects = [new Obj(480,740,20,20,'GrassAndDirt'),new Obj(500,740,20,20,'GrassAndDirt'),new Obj(520,740,20,20,'GrassAndDirt'),new Obj(540,740,20,20,'GrassAndDirt'),new Obj(580,740,20,20,'GrassAndDirt'),new Obj(580,740,20,20,'GrassAndDirt'),new Obj(600,740,20,20,'GrassAndDirt'),new Obj(600,740,20,20,'GrassAndDirt'),new Obj(620,740,20,20,'GrassAndDirt'),new Obj(640,740,20,20,'GrassAndDirt'),new Obj(660,740,20,20,'GrassAndDirt'),new Obj(680,740,20,20,'GrassAndDirt'),new Obj(680,740,20,20,'GrassAndDirt'),new Obj(700,740,20,20,'GrassAndDirt'),new Obj(700,740,20,20,'GrassAndDirt'),new Trampoline(700,720,20,20,'tp1',10),new Portal(700,600,20,20,'portal1',{x:900,y:600}),new Portal(900,600,20,20,'portal1',{x:700,y:600}),new Obj(880,620,20,20,'GrassAndDirt'),new Obj(900,620,20,20,'GrassAndDirt'),new Obj(920,620,20,20,'GrassAndDirt')]
 class Player{
     constructor(){
         this.size = 20
@@ -88,6 +95,9 @@ class Player{
         ctx.fillStyle = '#00ff00'
         ctx.fillRect(this.x,this.y,this.size,this.size)
         this.move()
+        const blockHeight = Math.floor((780*(canvas.width/1400)-this.y)/(20*(canvas.width/1400)))
+        ctx.font = '24px Arial'
+        ctx.fillText(blockHeight,50,50)
     }
     keyPress(e,bln){
         const keys = {
@@ -164,7 +174,7 @@ class Player{
         for(let i=0; i<objects.length; i++){
             const {x:x, y:y, w:w, h:h, type:type} = objects[i]
             if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)<y+h && this.y+this.size+Math.abs(this.jumpSpeed)>y){
-                if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt'){
+                if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt' || type == 'stone' || type == 'grassyStone'){
                     const x_dist = ((this.x+this.size/2)-(x+w/2))/(w/(w+h))
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
                     if(Math.abs(x_dist)<Math.abs(y_dist)){
