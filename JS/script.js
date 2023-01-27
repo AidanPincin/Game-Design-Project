@@ -2,6 +2,7 @@ import { grabImage } from "./images.js"
 
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
+let isRunning = false
 
 class Obj{
     constructor(x,y,w,h,type){
@@ -55,8 +56,11 @@ class Portal extends Obj{
         super(x,y,w,h,type)
         this.linkX = link.x
         this.linkY = link.y
+        this.cooldown = 0
     }
     teleport(player){
+        const linkedPortal = objects.find(b => b.x == this.linkX && b.y == this.linkY)
+        linkedPortal.cooldown = 180
         player.x = this.linkX
         player.y = this.linkY
     }
@@ -78,7 +82,7 @@ const TrampolinePowers = {
     10:2,
     7:1
 }
-const objects = [new Obj(480,740,20,20,'GrassAndDirt'),new Obj(500,740,20,20,'GrassAndDirt'),new Obj(520,740,20,20,'GrassAndDirt'),new Obj(540,740,20,20,'GrassAndDirt'),new Obj(580,740,20,20,'GrassAndDirt'),new Obj(580,740,20,20,'GrassAndDirt'),new Obj(600,740,20,20,'GrassAndDirt'),new Obj(600,740,20,20,'GrassAndDirt'),new Obj(620,740,20,20,'GrassAndDirt'),new Obj(640,740,20,20,'GrassAndDirt'),new Obj(660,740,20,20,'GrassAndDirt'),new Obj(680,740,20,20,'GrassAndDirt'),new Obj(680,740,20,20,'GrassAndDirt'),new Obj(700,740,20,20,'GrassAndDirt'),new Obj(700,740,20,20,'GrassAndDirt'),new Trampoline(700,720,20,20,'tp1',10),new Portal(700,600,20,20,'portal1',{x:900,y:600}),new Portal(900,600,20,20,'portal1',{x:700,y:600}),new Obj(880,620,20,20,'GrassAndDirt'),new Obj(900,620,20,20,'GrassAndDirt'),new Obj(920,620,20,20,'GrassAndDirt')]
+let objects = [new Obj(320,660,20,20,'GrassAndDirt'),new Obj(340,660,20,20,'GrassAndDirt'),new Obj(360,660,20,20,'GrassAndDirt'),new Obj(380,660,20,20,'GrassAndDirt'),new Obj(400,660,20,20,'GrassAndDirt'),new Obj(440,660,20,20,'GrassAndDirt'),new Obj(420,660,20,20,'GrassAndDirt'),new Obj(220,720,20,20,'GrassAndDirt'),new Obj(180,720,20,20,'GrassAndDirt'),new Obj(160,720,20,20,'GrassAndDirt'),new Obj(200,720,20,20,'GrassAndDirt'),new Obj(460,660,20,20,'Lava'),new Obj(480,660,20,20,'Lava'),new Obj(500,660,20,20,'Lava'),new Obj(520,660,20,20,'GrassAndDirt'),new Obj(540,660,20,20,'GrassAndDirt'),new Obj(560,660,20,20,'GrassAndDirt'),new Trampoline(620,660,20,20,'tp1',20),new Obj(660,460,20,20,'GrassAndDirt'),new Obj(680,460,20,20,'GrassAndDirt'),new Obj(700,460,20,20,'GrassAndDirt'),new Obj(720,460,20,20,'GrassAndDirt'),new Obj(740,460,20,20,'GrassAndDirt'),new Portal(760,440,20,30,'portal1',{"x":1000,"y":440}),new Portal(1000,440,20,30,'portal1',{"x":760,"y":440}),new Obj(980,480,20,20,'GrassAndDirt'),new Obj(1000,480,20,20,'GrassAndDirt'),new Obj(1020,480,20,20,'GrassAndDirt'),new Obj(1060,480,20,20,'GrassAndDirt'),new Obj(1040,480,20,20,'GrassAndDirt'),new Obj(1080,480,20,20,'GrassAndDirt')]
 class Player{
     constructor(){
         this.size = 20
@@ -165,7 +169,12 @@ class Player{
                     player.update(canvas.width/1400)
                 }
                 else if(type == 'portal1'){
-                    objects[i].teleport(this)
+                    if(objects[i].cooldown == 0){
+                        objects[i].teleport(this)
+                    }
+                    else{
+                        objects[i].cooldown -= 1
+                    }
                 }
             }
         }
@@ -213,7 +222,12 @@ class Player{
                     }
                 }
                 else if(type == 'portal1'){
-                    objects[i].teleport(this)
+                    if(objects[i].cooldown == 0){
+                        objects[i].teleport(this)
+                    }
+                    else{
+                        objects[i].cooldown -= 1
+                    }
                 }
             }
         }
@@ -230,10 +244,12 @@ class Player{
 let player = new Player()
 
 function mainLoop(){
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0,0,canvas.width,canvas.height)
-    player.draw()
-    objects.forEach(o => o.draw())
+    if(isRunning == true){
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0,0,canvas.width,canvas.height)
+        player.draw()
+        objects.forEach(o => o.draw())
+    }   
     requestAnimationFrame(mainLoop)
 }
 mainLoop()
@@ -259,8 +275,23 @@ resize()
 
 window.addEventListener('resize',resize)
 window.addEventListener('keydown',function(e){
-    player.keyPress(e,true)
+    if(isRunning == true){
+        player.keyPress(e,true)
+        if(e.key == 'i'){
+            const code = window.prompt('Insert code')
+        }
+    }
+    if(e.key == 't'){
+        if(isRunning == false){
+            isRunning = true
+        }
+        else{
+            isRunning = false
+        }
+    }
 })
 window.addEventListener('keyup',function(e){
-    player.keyPress(e,false)
+    if(isRunning == true){
+        player.keyPress(e,false)
+    }
 })
