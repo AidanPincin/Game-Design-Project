@@ -2,6 +2,7 @@ import { grabImage } from "./images.js"
 
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
+let isRunning = true
 
 class Button{
     constructor(x,y,w,h,type,fn){
@@ -107,73 +108,78 @@ let isDeleting = false
 let isLinkingPortals = false
 
 function mainLoop(){
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0,0,canvas.width,canvas.height)
-    if(isDeleting == false){
-        ctx.fillStyle = '#00ff00'
-        ctx.fillRect(mouseX,mouseY,mouseSize,mouseSize)
+    if(isRunning == true){
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0,0,canvas.width,canvas.height)
+        if(isDeleting == false){
+            ctx.fillStyle = '#00ff00'
+            ctx.fillRect(mouseX,mouseY,mouseSize,mouseSize)
+        }
+        else{
+            ctx.fillStyle = '#ff0000'
+        }
+        buttons.forEach(b => {if(b.txt != '' && showBlockOptions == true){b.draw()}})
+        blocks.forEach(b => b.draw())
+        if(isDeleting == true){
+            ctx.fillRect(mouseX,mouseY,mouseSize,mouseSize)
+        }
+        ctx.fillStyle = '#000000'
+        ctx.font = '12px Arial'
+        ctx.fillText('block size -- '+blockSize,10,220*(canvas.width/1400))
     }
-    else{
-        ctx.fillStyle = '#ff0000'
-    }
-    buttons.forEach(b => {if(b.txt != '' && showBlockOptions == true){b.draw()}})
-    blocks.forEach(b => b.draw())
-    if(isDeleting == true){
-        ctx.fillRect(mouseX,mouseY,mouseSize,mouseSize)
-    }
-    ctx.fillStyle = '#000000'
-    ctx.font = '12px Arial'
-    ctx.fillText('block size -- '+blockSize,10,220*(canvas.width/1400))
     requestAnimationFrame(mainLoop)
 }
 mainLoop()
 
 window.addEventListener('resize',resize)
 window.addEventListener('mousedown', function(e){
-    if(showBlockOptions == true){
-        buttons.find(b => b.wasClicked(e))
-    }
-    else{
-        if(isDeleting == true){
-            const foundBlock = blocks.find(b => mouseX>=b.x && mouseX<=b.x+b.w && mouseY>=b.y && mouseY<=b.y+b.h)
-            if(foundBlock != undefined){
-                const index = blocks.findIndex(b => b.x == foundBlock.x && b.y == foundBlock.y)
-                blocks.splice(index,1)
-            }
+    if(isRunning == true){
+        if(showBlockOptions == true){
+            buttons.find(b => b.wasClicked(e))
         }
         else{
-            const foundBlock = blocks.find(b => mouseX>b.x && mouseX<b.x+b.w && mouseY>b.y && mouseY<b.y+b.h)
-            if(foundBlock == undefined){
-                if(selectedBlock == 'tp1'){
-                    let power = prompt('What is the power of this trampoline?')
-                    if(power>0){
-                        blocks.push(new Trampoline(mouseX,mouseY,mouseSize,mouseSize,selectedBlock,JSON.parse(power)*(canvas.width/1400)))
+            if(isDeleting == true){
+                const foundBlock = blocks.find(b => mouseX==b.x && mouseY==b.y)
+                if(foundBlock != undefined){
+                    const index = blocks.findIndex(b => b.x == foundBlock.x && b.y == foundBlock.y)
+                    blocks.splice(index,1)
+                }
+            }
+            else{
+                const foundBlock = blocks.find(b => mouseX>b.x && mouseX<b.x+b.w && mouseY>b.y && mouseY<b.y+b.h)
+                if(foundBlock == undefined){
+                    if(selectedBlock == 'tp1'){
+                        let power = prompt('What is the power of this trampoline?')
+                        if(power>0){
+                            blocks.push(new Trampoline(mouseX,mouseY,mouseSize,mouseSize,selectedBlock,JSON.parse(power)*(canvas.width/1400)))
+                        }
+                        else{
+                            alert('Invalid Input')
+                        }
+                    }
+                    else if(selectedBlock == 'portal1'){
+                        const newPortal = new Portal(mouseX,mouseY,mouseSize,mouseSize*1.5,selectedBlock,undefined)
+                        if(isLinkingPortals == true){
+                            const linkedPortal = blocks.find(b => b.type == 'portal1' && b.link == undefined)
+                            newPortal.link = {x:linkedPortal.x,y:linkedPortal.y}
+                            linkedPortal.link = {x:newPortal.x,y:newPortal.y}
+                            isLinkingPortals = false
+                        }
+                        else{
+                            isLinkingPortals = true
+                        }
+                        blocks.push(newPortal)
                     }
                     else{
-                        alert('Invalid Input')
+                        blocks.push(new Block(mouseX,mouseY,mouseSize,mouseSize,selectedBlock))
                     }
-                }
-                else if(selectedBlock == 'portal1'){
-                    const newPortal = new Portal(mouseX,mouseY,mouseSize,mouseSize*1.5,selectedBlock,undefined)
-                    if(isLinkingPortals == true){
-                        const linkedPortal = blocks.find(b => b.type == 'portal1' && b.link == undefined)
-                        newPortal.link = {x:linkedPortal.x,y:linkedPortal.y}
-                        linkedPortal.link = {x:newPortal.x,y:linkedPortal.y}
-                    }
-                    else{
-                        isLinkingPortals = true
-                    }
-                    blocks.push(newPortal)
-                }
-                else{
-                    blocks.push(new Block(mouseX,mouseY,mouseSize,mouseSize,selectedBlock))
                 }
             }
         }
     }
 })
 window.addEventListener('mousemove',function(e){
-    if(showBlockOptions == false){
+    if(showBlockOptions == false && isRunning == true){
         const x = e.pageX-10
         const y = e.pageY-10
         const scale = canvas.width/1400
@@ -185,24 +191,34 @@ window.addEventListener('mousemove',function(e){
     }
 })
 window.addEventListener('keydown',function(e){
-    if(e.key == 's'){
-        if(showBlockOptions == true){
-            showBlockOptions = false
+    if(isRunning == true){
+        if(e.key == 's'){
+            if(showBlockOptions == true){
+                showBlockOptions = false
+            }
+            else{
+                showBlockOptions = true
+            }
         }
-        else{
-            showBlockOptions = true
+        if(e.key == 'd'){
+            if(isDeleting == false){
+                isDeleting = true
+            }
+            else{
+                isDeleting = false
+            }
+        }
+        if(e.key == 'p'){
+            printCode()
         }
     }
-    if(e.key == 'd'){
-        if(isDeleting == false){
-            isDeleting = true
+    if(e.key == 't'){
+        if(isRunning == false){
+            isRunning = true
         }
         else{
-            isDeleting = false
+            isRunning = false
         }
-    }
-    if(e.key == 'p'){
-        printCode()
     }
 })
 function printCode(){
@@ -226,12 +242,16 @@ function printCode(){
         else if(type == 'portal1'){
             code += ','+JSON.stringify({x:Math.round(blocks[i].link.x*scale),y:Math.round(blocks[i].link.y*scale)})
         }
-        code += '),'
+        if(i != blocks.length-1){
+            code += '),'
+        }
+        else{
+            code +=')'
+        }
     }
     code += ']'
     console.log(code)
 }
-
 function resize(){
     const currentWidth = canvas.width
     const w2 = window.document.defaultView.innerWidth-20
