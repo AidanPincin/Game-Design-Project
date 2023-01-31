@@ -131,9 +131,12 @@ function mainLoop(){
 }
 mainLoop()
 
+let mouseDown = false
+
 window.addEventListener('resize',resize)
 window.addEventListener('mousedown', function(e){
     if(isRunning == true){
+        mouseDown = true
         if(showBlockOptions == true){
             buttons.find(b => b.wasClicked(e))
         }
@@ -178,6 +181,9 @@ window.addEventListener('mousedown', function(e){
         }
     }
 })
+window.addEventListener('mouseup',function(){
+    mouseDown = false
+})
 window.addEventListener('mousemove',function(e){
     if(showBlockOptions == false && isRunning == true){
         const x = e.pageX-10
@@ -210,14 +216,6 @@ window.addEventListener('keydown',function(e){
         }
         if(e.key == 'p'){
             printCode()
-        }
-    }
-    if(e.key == 't'){
-        if(isRunning == false){
-            isRunning = true
-        }
-        else{
-            isRunning = false
         }
     }
 })
