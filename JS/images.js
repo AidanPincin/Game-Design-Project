@@ -22,7 +22,9 @@ const images = {
     Tree: image('Tree'),
     Tree2: image('Tree2'),
     plus: image('plus'),
-    minus: image('minus')
+    minus: image('minus'),
+    finishFlag: image('Finish_Flag'),
+    background: image('Background')
 }
 export function grabImage(name){
     return images[name]
