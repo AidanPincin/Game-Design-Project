@@ -173,7 +173,13 @@ class Player{
             this.isJumping = false
         }
         if(this.y<-1000){
+            const g = player.gravity
+            const s = player.startJumpSpeed
+            const h = player.speed
             player = new Player(spawnPoints[level])
+            player.gravity = g
+            player.startJumpSpeed = s
+            player.speed = h
             player.update(canvas.width/1400)
         }
     }
@@ -194,7 +200,13 @@ class Player{
                     }
                 }
                 else if(type == 'Lava'){
-                    player  = new Player(spawnPoints[level])
+                    const g = player.gravity
+                    const s = player.startJumpSpeed
+                    const h = player.speed
+                    player = new Player(spawnPoints[level])
+                    player.gravity = g
+                    player.startJumpSpeed = s
+                    player.speed = h
                     player.update(canvas.width/1400)
                 }
                 else if(type == 'portal1'){
@@ -218,7 +230,13 @@ class Player{
                         if(levelCooldown == 0){
                             level+=1
                         }
+                        const g = player.gravity
+                        const s = player.startJumpSpeed
+                        const h = player.speed
                         player = new Player(spawnPoints[level])
+                        player.gravity = g
+                        player.startJumpSpeed = s
+                        player.speed = h
                         player.update(canvas.width/1400)
                         levelCooldown = 30
                     }
@@ -263,7 +281,13 @@ class Player{
                     }
                 }
                 else if(type == 'Lava'){
-                    player  = new Player(spawnPoints[level])
+                    const g = player.gravity
+                    const s = player.startJumpSpeed
+                    const h = player.speed
+                    player = new Player(spawnPoints[level])
+                    player.gravity = g
+                    player.startJumpSpeed = s
+                    player.speed = h
                     player.update(canvas.width/1400)
                 }
                 else if(type == 'tp1' || type == 'tp2'){
@@ -302,7 +326,13 @@ class Player{
                         if(levelCooldown == 0){
                             level+=1
                         }
+                        const g = player.gravity
+                        const s = player.startJumpSpeed
+                        const h = player.speed
                         player = new Player(spawnPoints[level])
+                        player.gravity = g
+                        player.startJumpSpeed = s
+                        player.speed = h
                         player.update(canvas.width/1400)
                         levelCooldown = 30
                     }
