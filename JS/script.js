@@ -401,7 +401,7 @@ window.addEventListener('keydown',function(e){
     if(e.key == 'm' && player.gravity>0.25){
         player.gravity *= 0.9
         const originalSpeed = player.startJumpSpeed
-        player.startJumpSpeed = Math.sqrt(player.gravity*2*112.5)*(canvas.width/1400)
+        player.startJumpSpeed = Math.sqrt(player.gravity*2*112.5*(canvas.width/1400))
         player.speed = (5*player.startJumpSpeed/(15*(canvas.width/1400)))*(canvas.width/1400)
         for(let i=1; i<6; i++){
             const objects = levels[i]
@@ -414,7 +414,7 @@ window.addEventListener('keydown',function(e){
     if(e.key == 'n' && player.gravity<2){
         player.gravity *= 1.1
         const originalSpeed = player.startJumpSpeed
-        player.startJumpSpeed = Math.sqrt(player.gravity*2*112.5)*(canvas.width/1400)
+        player.startJumpSpeed = Math.sqrt(player.gravity*2*112.5*(canvas.width/1400))
         player.speed = (5*player.startJumpSpeed/(15*(canvas.width/1400)))*(canvas.width/1400)
         for(let i=1; i<6; i++){
             const objects = levels[i]
