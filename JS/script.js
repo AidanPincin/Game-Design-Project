@@ -110,7 +110,7 @@ const spawnPoints = {
 }
 class Player{
     constructor(cords){
-        this.size = 19
+        this.size = 19.9
         this.x = cords.x
         this.y = cords.y
         this.speed = 5
@@ -121,13 +121,12 @@ class Player{
         this.startJumpSpeed = 15
     }
     draw(){
-        console.log(this.gravity+','+this.jumpSpeed+','+this.startJumpSpeed)
         ctx.fillStyle = '#00ff00'
         ctx.fillRect(this.x,this.y,this.size,this.size)
         this.move()
-        const blockHeight = Math.floor((780*(canvas.width/1400)-this.y)/(20*(canvas.width/1400)))
+        const blockHeight = Math.floor((canvas.height-player.y)/player.size)
         ctx.font = '24px Arial'
-        ctx.fillText(level,50,50)
+        ctx.fillText(blockHeight,50,50)
     }
     keyPress(e,bln){
         const keys = {
@@ -369,6 +368,32 @@ resize()
 window.addEventListener('resize',resize)
 window.addEventListener('keydown',function(e){
     player.keyPress(e,true)
+    if(e.key == 'm' && player.gravity>0.25){
+        player.gravity *= 0.9
+        const originalSpeed = player.startJumpSpeed
+        player.startJumpSpeed = Math.sqrt(player.gravity*2*112.5)*(canvas.width/1400)
+        player.speed = (5*player.startJumpSpeed/(15*(canvas.width/1400)))*(canvas.width/1400)
+        for(let i=1; i<6; i++){
+            const objects = levels[i]
+            objects.forEach(t => {
+                if(t.power != undefined){
+                    t.power *= player.startJumpSpeed/originalSpeed
+                }})
+        }
+    }
+    if(e.key == 'n' && player.gravity<2){
+        player.gravity *= 1.1
+        const originalSpeed = player.startJumpSpeed
+        player.startJumpSpeed = Math.sqrt(player.gravity*2*112.5)*(canvas.width/1400)
+        player.speed = (5*player.startJumpSpeed/(15*(canvas.width/1400)))*(canvas.width/1400)
+        for(let i=1; i<6; i++){
+            const objects = levels[i]
+            objects.forEach(t => {
+                if(t.power != undefined){
+                    t.power *= player.startJumpSpeed/originalSpeed
+                }})
+        }
+    }
 })
 window.addEventListener('keyup',function(e){
     player.keyPress(e,false)
