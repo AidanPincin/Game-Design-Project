@@ -177,10 +177,10 @@ class Player{
             const s = player.startJumpSpeed
             const h = player.speed
             player = new Player(spawnPoints[level])
+            player.update(canvas.width/1400)
             player.gravity = g
             player.startJumpSpeed = s
             player.speed = h
-            player.update(canvas.width/1400)
         }
     }
     detectCollisionX(){
@@ -204,10 +204,10 @@ class Player{
                     const s = player.startJumpSpeed
                     const h = player.speed
                     player = new Player(spawnPoints[level])
+                    player.update(canvas.width/1400)
                     player.gravity = g
                     player.startJumpSpeed = s
                     player.speed = h
-                    player.update(canvas.width/1400)
                 }
                 else if(type == 'portal1'){
                     if(levels[level][i].cooldown == 0){
@@ -234,10 +234,10 @@ class Player{
                         const s = player.startJumpSpeed
                         const h = player.speed
                         player = new Player(spawnPoints[level])
+                        player.update(canvas.width/1400)
                         player.gravity = g
                         player.startJumpSpeed = s
                         player.speed = h
-                        player.update(canvas.width/1400)
                         levelCooldown = 30
                     }
                 }
@@ -285,10 +285,10 @@ class Player{
                     const s = player.startJumpSpeed
                     const h = player.speed
                     player = new Player(spawnPoints[level])
+                    player.update(canvas.width/1400)
                     player.gravity = g
                     player.startJumpSpeed = s
                     player.speed = h
-                    player.update(canvas.width/1400)
                 }
                 else if(type == 'tp1' || type == 'tp2'){
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
@@ -330,10 +330,10 @@ class Player{
                         const s = player.startJumpSpeed
                         const h = player.speed
                         player = new Player(spawnPoints[level])
+                        player.update(canvas.width/1400)
                         player.gravity = g
                         player.startJumpSpeed = s
                         player.speed = h
-                        player.update(canvas.width/1400)
                         levelCooldown = 30
                     }
                 }
