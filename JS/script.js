@@ -2,6 +2,7 @@ import { grabImage } from "./images.js"
 
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
+let deaths = 0
 
 class Obj{
     constructor(x,y,w,h,type){
@@ -136,15 +137,20 @@ class Player{
         this.jumpSpeed = 0
         this.time = 0
         this.startJumpSpeed = 15
+        this.deathcooldown = 0
         this.updateCollidingBlocks()
+        this.accuracy = 10
     }
     draw(){
         ctx.fillStyle = '#00ff00'
         ctx.fillRect(this.x,this.y,this.size,this.size)
         this.move()
-        const blockHeight = Math.floor((canvas.height-player.y)/player.size)
-        ctx.font = '24px Arial'
-        ctx.fillText(blockHeight,50,50)
+        if(this.deathcooldown != 0){
+            this.deathcooldown -= 1
+        }
+        //const blockHeight = Math.floor((canvas.height-player.y)/player.size)
+        //ctx.font = '24px Arial'
+        //ctx.fillText(blockHeight,50,50)
     }
     keyPress(e,bln){
         const keys = {
@@ -161,16 +167,16 @@ class Player{
         }
     }
     move(){
-        for(let i=0; i<5; i++){
-            this.y -= this.jumpSpeed/5
+        for(let i=0; i<this.accuracy; i++){
+            this.y -= this.jumpSpeed/this.accuracy*60/averagefps
             if(this.right == true){
-                this.x+=this.speed/5
+                this.x+=this.speed/this.accuracy*60/averagefps
                 if(this.x>canvas.width-this.size){
                     this.x=canvas.width-this.size
                 }
             }
             if(this.left == true){
-                this.x-=this.speed/5
+                this.x-=this.speed/this.accuracy*60/averagefps
                 if(this.x<0){
                     this.x=0
                 }
@@ -178,14 +184,14 @@ class Player{
             this.detectCollisionX()
             const isResting = this.detectCollisionY()
             if(!isResting && this.y != canvas.height-this.size && this.isJumping == false){
-                this.jumpSpeed -= this.gravity/5
+                this.jumpSpeed -= this.gravity/this.accuracy*60/averagefps
             }
             if(this.up == true && this.isJumping == false){
                 this.jumpSpeed = this.startJumpSpeed
                 this.isJumping = true
             }
             if(this.isJumping == true){
-                this.jumpSpeed -= this.gravity/5
+                this.jumpSpeed -= this.gravity/this.accuracy*60/averagefps
             }
             if(this.y>canvas.height-this.size){
                 this.y = canvas.height-this.size
@@ -206,7 +212,7 @@ class Player{
     detectCollisionX(){
         for(let i=0; i<this.blocks.length; i++){
             const {x:x, y:y, w:w, h:h, type:type} = this.blocks[i]
-            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)/5<y+h && this.y+this.size+Math.abs(this.jumpSpeed)/5>y){
+            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)/this.accuracy*60/averagefps<y+h && this.y+this.size+Math.abs(this.jumpSpeed)/this.accuracy*60/averagefps>y){
                 if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt' || type == 'tp1' || type == 'stone' || type == 'grassyStone' || type == 'tp2'){
                     const x_dist = ((this.x+this.size/2)-(x+w/2))/(w/(w+h))
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
@@ -228,6 +234,10 @@ class Player{
                     player.gravity = g
                     player.startJumpSpeed = s
                     player.speed = h
+                    if(this.deathcooldown==0){
+                        deaths += 1
+                        this.deathcooldown = 60
+                    }
                 }
                 else if(type == 'portal1'){
                     if(this.blocks[i].cooldown == 0){
@@ -247,6 +257,7 @@ class Player{
                         }
                     }
                     else{
+                        fpsTimes = []
                         if(levelCooldown == 0){
                             level+=1
                         }
@@ -275,7 +286,7 @@ class Player{
     detectCollisionY(){
         for(let i=0; i<this.blocks.length; i++){
             const {x:x, y:y, w:w, h:h, type:type} = this.blocks[i]
-            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)/5<y+h && this.y+this.size+Math.abs(this.jumpSpeed)/5>y){
+            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)/this.accuracy*60/averagefps<y+h && this.y+this.size+Math.abs(this.jumpSpeed)/this.accuracy*60/averagefps>y){
                 if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt' || type == 'stone' || type == 'grassyStone'){
                     const x_dist = ((this.x+this.size/2)-(x+w/2))/(w/(w+h))
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
@@ -309,6 +320,10 @@ class Player{
                     player.gravity = g
                     player.startJumpSpeed = s
                     player.speed = h
+                    if(this.deathcooldown==0){
+                        deaths += 1
+                        this.deathcooldown = 60
+                    }
                 }
                 else if(type == 'tp1' || type == 'tp2'){
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
@@ -343,6 +358,7 @@ class Player{
                         }
                     }
                     else{
+                        fpsTimes = []
                         if(levelCooldown == 0){
                             level+=1
                         }
@@ -384,15 +400,34 @@ let level = 1
 let time = 0
 let player = new Player(spawnPoints[level])
 let levelCooldown = 0
+let renderLimitations = false
+let renderDistance = 500
+let timer = 0
+let fps = 0
+let fpsTimes = []
+let averagefps = 60
 
 function mainLoop(){
+    timer += 1
     ctx.drawImage(grabImage('background'),0,0,canvas.width,canvas.height)
     player.draw()
-    levels[level].forEach(o => o.draw())
-    time += 1
+    levels[level].forEach(o => {if(renderLimitations == true){
+        const xDiff = (player.x-o.x)
+        const yDiff = (player.y-o.y)*(14/8)
+        const dist = Math.sqrt(Math.pow(xDiff,2)+Math.pow(yDiff,2))
+        if(dist<renderDistance){
+            o.draw()
+        }
+    }
+    else{o.draw()}})
+    time += 60/averagefps
     if(levelCooldown != 0){
         levelCooldown -= 1
     }
+    ctx.font = '24px Arial'
+    ctx.fillStyle = '#ff0000'
+    ctx.fillText('Deaths: '+deaths,canvas.width-150,50)
+    ctx.fillText('FPS: '+Math.round(averagefps),50,50)
     requestAnimationFrame(mainLoop)
 }
 mainLoop()
@@ -415,6 +450,7 @@ function resize(){
     for(let i=1; i<6; i++){
         levels[i].forEach(o => o.update(scale))
     }
+    renderDistance*=scale
 }
 resize()
 
@@ -447,7 +483,34 @@ window.addEventListener('keydown',function(e){
                 }})
         }
     }
+    if(e.key == 'r'){
+        if(renderLimitations == false){
+            renderLimitations = true
+        }
+        else{
+            renderLimitations = false
+        }
+    }
+    if(e.key == 'q' && renderDistance<1000*(canvas.width/1400)){
+        renderDistance += (canvas.width/1400)*50
+    }
+    if(e.key == 'e' && renderDistance>250*(canvas.width/1400)){
+        renderDistance -= (canvas.width/1400)*50
+    }
 })
 window.addEventListener('keyup',function(e){
     player.keyPress(e,false)
 })
+setInterval(() => {
+    fps = timer
+    timer = 0
+    fpsTimes.push(fps)
+    if(fpsTimes.length>3){
+        fpsTimes.splice(0,1)
+    }
+    let count = 0
+    for(let i=0; i<fpsTimes.length; i++){
+        count += fpsTimes[i]
+    }
+    averagefps = count/fpsTimes.length
+},1000)
