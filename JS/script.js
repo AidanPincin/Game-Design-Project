@@ -59,7 +59,7 @@ class Portal extends Obj{
     }
     teleport(player){
         const linkedPortal = levels[level].find(b => b.x == this.linkX && b.y == this.linkY)
-        linkedPortal.cooldown = 180
+        linkedPortal.cooldown = 900
         player.x = this.linkX
         player.y = this.linkY
     }
@@ -103,10 +103,10 @@ const levels = {
 }
 function checkForPossibleCollisions(block,level){
     const {x:x,y:y,w:w,h:h} = block
-    const b1 = level.find(b => Math.round(b.x+b.w) == Math.round(x) && Math.round(b.y) == Math.round(y))
-    const b2 = level.find(b => Math.round(b.y+b.h) == Math.round(y) && Math.round(b.x) == Math.round(x))
-    const b3 = level.find(b => Math.round(b.x) == Math.round(x+w) && Math.round(b.y) == Math.round(y))
-    const b4 = level.find(b => Math.round(b.y) == Math.round(y+h) && Math.round(b.x) == Math.round(x))
+    const b1 = level.find(b => (Math.round(b.x+b.w) == Math.round(x) && Math.round(y)>=Math.round(b.y) && Math.round(b.y+b.h)>=Math.round(y+h)) || Math.round(x) == 0)
+    const b2 = level.find(b => (Math.round(b.y+b.h) == Math.round(y) && Math.round(x)>=Math.round(b.x) && Math.round(b.x+b.w)>=Math.round(x+w)) || Math.round(y) == 0)
+    const b3 = level.find(b => (Math.round(b.x) == Math.round(x+w) && Math.round(y)>=Math.round(b.y) && Math.round(b.y+b.h)>=Math.round(y+h)) || Math.round(x+w) == Math.round(canvas.width))
+    const b4 = level.find(b => (Math.round(b.y) == Math.round(y+h) && Math.round(x)>=Math.round(b.x) && Math.round(b.x+b.w)>=Math.round(x+w)) || Math.round(y+h) == Math.round(canvas.height))
     if(b1 != undefined && b2 != undefined && b3 != undefined && b4 != undefined){
         return false
     }
