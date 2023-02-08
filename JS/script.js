@@ -119,6 +119,7 @@ class Player{
         this.jumpSpeed = 0
         this.time = 0
         this.startJumpSpeed = 15
+        this.loadChunks = []
     }
     draw(){
         ctx.fillStyle = '#00ff00'
@@ -143,50 +144,52 @@ class Player{
         }
     }
     move(){
-        this.y -= this.jumpSpeed
-        if(this.right == true){
-            this.x+=this.speed
-            if(this.x>canvas.width-this.size){
-                this.x=canvas.width-this.size
+        for(let i=0; i<5; i++){
+            this.y -= this.jumpSpeed/5
+            if(this.right == true){
+                this.x+=this.speed/5
+                if(this.x>canvas.width-this.size){
+                    this.x=canvas.width-this.size
+                }
             }
-        }
-        if(this.left == true){
-            this.x-=this.speed
-            if(this.x<0){
-                this.x=0
+            if(this.left == true){
+                this.x-=this.speed/5
+                if(this.x<0){
+                    this.x=0
+                }
             }
-        }
-        this.detectCollisionX()
-        const isResting = this.detectCollisionY()
-        if(!isResting && this.y != canvas.height-this.size && this.isJumping == false){
-            this.jumpSpeed -= this.gravity
-        }
-        if(this.up == true && this.isJumping == false){
-            this.jumpSpeed = this.startJumpSpeed
-            this.isJumping = true
-        }
-        if(this.isJumping == true){
-            this.jumpSpeed -= this.gravity
-        }
-        if(this.y>canvas.height-this.size){
-            this.y = canvas.height-this.size
-            this.isJumping = false
-        }
-        if(this.y<-1000){
-            const g = player.gravity
-            const s = player.startJumpSpeed
-            const h = player.speed
-            player = new Player(spawnPoints[level])
-            player.update(canvas.width/1400)
-            player.gravity = g
-            player.startJumpSpeed = s
-            player.speed = h
+            this.detectCollisionX()
+            const isResting = this.detectCollisionY()
+            if(!isResting && this.y != canvas.height-this.size && this.isJumping == false){
+                this.jumpSpeed -= this.gravity/5
+            }
+            if(this.up == true && this.isJumping == false){
+                this.jumpSpeed = this.startJumpSpeed
+                this.isJumping = true
+            }
+            if(this.isJumping == true){
+                this.jumpSpeed -= this.gravity/5
+            }
+            if(this.y>canvas.height-this.size){
+                this.y = canvas.height-this.size
+                this.isJumping = false
+            }
+            if(this.y<-1000){
+                const g = player.gravity
+                const s = player.startJumpSpeed
+                const h = player.speed
+                player = new Player(spawnPoints[level])
+                player.update(canvas.width/1400)
+                player.gravity = g
+                player.startJumpSpeed = s
+                player.speed = h
+            }
         }
     }
     detectCollisionX(){
         for(let i=0; i<levels[level].length; i++){
             const {x:x, y:y, w:w, h:h, type:type} = levels[level][i]
-            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)<y+h && this.y+this.size+Math.abs(this.jumpSpeed)>y){
+            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)/5<y+h && this.y+this.size+Math.abs(this.jumpSpeed)/5>y){
                 if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt' || type == 'tp1' || type == 'stone' || type == 'grassyStone' || type == 'tp2'){
                     const x_dist = ((this.x+this.size/2)-(x+w/2))/(w/(w+h))
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
@@ -255,7 +258,7 @@ class Player{
     detectCollisionY(){
         for(let i=0; i<levels[level].length; i++){
             const {x:x, y:y, w:w, h:h, type:type} = levels[level][i]
-            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)<y+h && this.y+this.size+Math.abs(this.jumpSpeed)>y){
+            if(this.x<x+w && this.x+this.size>x && this.y-Math.abs(this.jumpSpeed)/5<y+h && this.y+this.size+Math.abs(this.jumpSpeed)/5>y){
                 if(type == 'GrassAndDirt' || type == 'Grass' || type == 'Dirt' || type == 'stone' || type == 'grassyStone'){
                     const x_dist = ((this.x+this.size/2)-(x+w/2))/(w/(w+h))
                     const y_dist = ((this.y+this.size/2)-(y+h/2))/(h/(w+h))
